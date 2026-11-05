@@ -30,6 +30,8 @@ async function api<T>(path: string, token: string | undefined, init: RequestInit
     ...init,
     headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(init.headers ?? {}) },
   });
+  // nella versione online senza server (hosting statico) /api non risponde con JSON
+  if (!(res.headers.get('content-type') ?? '').includes('application/json')) throw new ApiError('Server non disponibile', 503);
   const body = await res.json().catch(() => ({}));
   if (!res.ok) throw new ApiError(body.error ?? `Errore ${res.status}`, res.status);
   return body as T;
@@ -152,5 +154,12 @@ export async function syncConsent(consent: Consent, accountsMeta: SessionResult[
 }
 
 export async function fetchEcbRates(token?: string): Promise<{ date: string; rates: Record<string, number> }> {
-  return api('/fx/latest', token);
+  try {
+    return await api('/fx/latest', token);
+  } catch {
+    // senza server: tassi di riferimento BCE pubblici, richiesti direttamente dal browser (nessun dato personale inviato)
+    const r = await fetch('https://api.frankfurter.app/latest?from=EUR');
+    if (!r.ok) throw new Error('Servizio tassi BCE non raggiungibile');
+    return r.json();
+  }
 }

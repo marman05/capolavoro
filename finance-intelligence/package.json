@@ -11,7 +11,8 @@
     "build": "tsc -b && vite build",
     "start": "NODE_ENV=production tsx server/index.ts",
     "typecheck": "tsc -b",
-    "test": "vitest run"
+    "test": "vitest run",
+    "build:web": "vite build"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.5.0",

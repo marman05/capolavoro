@@ -163,7 +163,7 @@ function OpenBankingCard({ status }: { status: ServerStatus | null | 'offline' }
     <Card className="lg:col-span-6">
       <CardHeader icon={<Link2 size={16} className="text-accent" />} title="Collega via Open Banking" subtitle="PSD2 · Account Information Service · sola lettura" />
       {status === null && <Loader2 className="animate-spin text-muted" />}
-      {status === 'offline' && <Note tone="warning">Il server locale non è raggiungibile. Avvialo con <code className="text-ink">npm run dev</code> per usare Open Banking e l'assistente AI. L'importazione dei file funziona comunque.</Note>}
+      {status === 'offline' && <Note tone="warning">Il server non è disponibile: questa versione funziona senza server (ad esempio la versione online) oppure il server locale non è avviato. Il collegamento Open Banking richiede il server con le chiavi di Enable Banking (vedi README, <code className="text-ink">npm run dev</code>). L'importazione dei file qui sotto funziona comunque, interamente nel browser.</Note>}
       {status && status !== 'offline' && !configured && (
         <Note tone="warning">
           Open Banking non è configurato. Per attivarlo registra gratuitamente un'applicazione su Enable Banking (provider PSD2 autorizzato), imposta <code className="text-ink">ENABLE_BANKING_APP_ID</code> e la chiave privata nel file <code className="text-ink">.env</code> del server e usa come redirect URL <code className="break-all text-ink">{status.enableBanking.redirectUrl}</code>. Istruzioni complete in <code className="text-ink">docs/INTEGRATIONS.md</code>.
