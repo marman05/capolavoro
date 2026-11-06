@@ -16,7 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ACTIVITY_LEVELS, GOALS } from "@/lib/constants";
 import { bmi, bmiLabel, calcTargets } from "@/lib/nutrition";
-import { createClient } from "@/lib/supabase/client";
+import { authClient } from "@/lib/auth-client";
 import { notificationsSupported, requestNotificationPermission } from "@/lib/notify";
 import { cn } from "@/lib/utils";
 import type { ActivityLevel, Goal, Sex } from "@/lib/types";
@@ -47,9 +47,7 @@ export default function ProfilePage() {
   });
 
   useEffect(() => {
-    createClient()
-      .auth.getUser()
-      .then(({ data }) => setEmail(data.user?.email ?? ""));
+    authClient.getSession().then(({ data }) => setEmail(data?.user.email ?? ""));
   }, []);
 
   const n = (s: string) => Number(s.replace(",", "."));
@@ -309,7 +307,7 @@ export default function ProfilePage() {
               variant="outline"
               className="text-destructive"
               onClick={async () => {
-                await createClient().auth.signOut();
+                await authClient.signOut();
                 router.replace("/login");
                 router.refresh();
               }}

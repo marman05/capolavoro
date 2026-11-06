@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { getProfile, updateProfile } from "@/lib/data";
+import { authClient } from "@/lib/auth-client";
 import type { Profile } from "@/lib/types";
 import { Logo } from "./logo";
 
@@ -30,6 +31,8 @@ export function ProfileProvider({ children, requireOnboarded = true }: { childre
     try {
       const p = await getProfile();
       if (!p) {
+        // Sessione scaduta o non valida: pulisce il cookie prima di andare al login.
+        await authClient.signOut().catch(() => undefined);
         router.replace("/login");
         return;
       }
@@ -40,7 +43,7 @@ export function ProfileProvider({ children, requireOnboarded = true }: { childre
   }, [router]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- caricamento dati asincrono da Supabase
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- caricamento dati asincrono dal server
     refresh();
   }, [refresh]);
 
@@ -64,7 +67,7 @@ export function ProfileProvider({ children, requireOnboarded = true }: { childre
       <div className="flex min-h-dvh flex-col items-center justify-center gap-3 p-6 text-center">
         <Logo />
         <p className="max-w-sm text-sm text-muted-foreground">
-          Impossibile caricare il profilo: {error}. Verifica di aver applicato la migrazione del database Supabase.
+          Impossibile caricare il profilo: {error}. Verifica la connessione al database e di aver eseguito npm run db:migrate.
         </p>
         <button className="text-sm font-medium text-primary" onClick={() => location.reload()}>
           Riprova

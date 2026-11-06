@@ -1,19 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Loader2, MailCheck } from "lucide-react";
-import { toast } from "sonner";
-import { createClient } from "@/lib/supabase/client";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const ERRORS: Record<string, string> = {
-  "Invalid login credentials": "Email o password non corretti.",
-  "Email not confirmed": "Conferma prima la tua email: controlla la casella di posta.",
-  "User already registered": "Esiste già un account con questa email.",
+  INVALID_EMAIL_OR_PASSWORD: "Email o password non corretti.",
+  USER_ALREADY_EXISTS: "Esiste già un account con questa email.",
+  USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL: "Esiste già un account con questa email.",
+  PASSWORD_TOO_SHORT: "La password deve avere almeno 8 caratteri.",
+  INVALID_EMAIL: "Indirizzo email non valido.",
 };
 
 export function AuthForm({ mode }: { mode: "login" | "register" }) {
@@ -24,77 +25,27 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sent, setSent] = useState(false);
-
-  useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("errore") === "link")
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- legge la query string solo dopo l'idratazione
-      setError("Il link di conferma non è valido o è scaduto. Accedi o richiedine uno nuovo.");
-  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setBusy(true);
-    const supabase = createClient();
     try {
-      if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        router.replace("/");
-        router.refresh();
-      } else {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { display_name: name.trim() },
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
-          },
-        });
-        if (error) throw error;
-        if (data.session) {
-          router.replace("/onboarding");
-          router.refresh();
-        } else {
-          setSent(true);
-        }
+      const res =
+        mode === "login"
+          ? await authClient.signIn.email({ email, password })
+          : await authClient.signUp.email({ email, password, name: name.trim() || email.split("@")[0] });
+      if (res.error) {
+        setError(ERRORS[res.error.code ?? ""] ?? res.error.message ?? "Errore imprevisto");
+        return;
       }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Errore imprevisto";
-      setError(ERRORS[msg] ?? msg);
+      router.replace(mode === "login" ? "/" : "/onboarding");
+      router.refresh();
+    } catch {
+      setError("Impossibile contattare il server. Riprova.");
     } finally {
       setBusy(false);
     }
-  }
-
-  async function resetPassword() {
-    if (!email) {
-      setError("Inserisci la tua email per ricevere il link di reset.");
-      return;
-    }
-    const { error } = await createClient().auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback`,
-    });
-    if (error) setError(error.message);
-    else toast.success("Ti abbiamo inviato un'email per reimpostare la password.");
-  }
-
-  if (sent) {
-    return (
-      <div className="flex flex-col items-center gap-4 text-center">
-        <span className="grid size-14 place-items-center rounded-2xl bg-primary/12 text-primary">
-          <MailCheck className="size-7" />
-        </span>
-        <h1 className="text-2xl font-semibold tracking-tight">Controlla la tua email</h1>
-        <p className="text-sm text-muted-foreground">
-          Abbiamo inviato un link di conferma a <b className="text-foreground">{email}</b>. Aprilo per attivare l&apos;account.
-        </p>
-        <Button variant="outline" asChild>
-          <Link href="/login">Torna al login</Link>
-        </Button>
-      </div>
-    );
   }
 
   return (
@@ -119,11 +70,6 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <Label htmlFor="password">Password</Label>
-          {mode === "login" && (
-            <button type="button" onClick={resetPassword} className="text-xs font-medium text-primary">
-              Password dimenticata?
-            </button>
-          )}
         </div>
         <div className="relative">
           <Input

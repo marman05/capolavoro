@@ -9,19 +9,17 @@ export default function SetupPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Configura FitTrack AI</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Mancano le variabili d&apos;ambiente di Supabase. Crea un file <code>.env.local</code> (o impostale sul tuo hosting) e riavvia il
-          server.
+          Mancano le variabili d&apos;ambiente del server. Impostale su Vercel (o in <code>.env.local</code>) e riavvia.
         </p>
       </div>
       <pre className="overflow-x-auto rounded-2xl bg-muted p-4 text-xs leading-relaxed">
-        {`NEXT_PUBLIC_SUPABASE_URL=https://<progetto>.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+        {`DATABASE_URL=postgresql://...neon.tech/neondb?sslmode=require
+BETTER_AUTH_SECRET=<stringa casuale di 32+ caratteri>
 ANTHROPIC_API_KEY=sk-ant-...
 FDC_API_KEY=...            # facoltativa (USDA)`}
       </pre>
       <p className="text-sm text-muted-foreground">
-        Poi applica la migrazione <code>supabase/migrations/20261106000000_init.sql</code> al database (SQL Editor di Supabase oppure{" "}
-        <code>supabase db push</code>). Trovi tutti i passaggi nel README.
+        Poi crea le tabelle con <code>npm run db:migrate</code>. Trovi tutti i passaggi nel README.
       </p>
     </div>
   );

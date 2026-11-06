@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAuthUser } from "@/lib/supabase/server";
+import { getUserId } from "@/lib/server/session";
 import { searchLocalFoods } from "@/lib/foods-local";
 import { searchOpenFoodFacts, searchUSDA } from "@/lib/server/nutrition-api";
 import { rateLimit } from "@/lib/server/rate-limit";
@@ -8,7 +8,7 @@ import type { FoodSearchResult } from "@/lib/types";
 export const runtime = "nodejs";
 
 export async function GET(req: Request) {
-  const { userId } = await getAuthUser();
+  const userId = await getUserId();
   if (!userId) return NextResponse.json({ error: "Non autenticato" }, { status: 401 });
 
   const q = new URL(req.url).searchParams.get("q")?.trim() ?? "";

@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { DATA_CHANGED } from "@/lib/data";
 
 /**
- * Richiama `onChange` quando cambia una delle tabelle indicate (anche da un altro
- * dispositivo). Supabase Realtime applica la RLS: arrivano solo le righe dell'utente.
+ * Richiama `onChange` quando cambia una delle tabelle indicate: dopo un salvataggio
+ * in questa o in un'altra scheda, e quando l'app torna in primo piano (es. dati
+ * inseriti da un altro dispositivo).
  */
 export function useRealtime(tables: string[], onChange: () => void) {
   const cb = useRef(onChange);
@@ -15,22 +16,30 @@ export function useRealtime(tables: string[], onChange: () => void) {
   const key = tables.join(",");
 
   useEffect(() => {
-    const supabase = createClient();
+    const watched = new Set(key.split(","));
     let timer: ReturnType<typeof setTimeout> | undefined;
-    const channel = supabase.channel(`rt-${key}-${Math.random().toString(36).slice(2)}`);
-    for (const table of key.split(",")) {
-      channel.on("postgres_changes", { event: "*", schema: "public", table }, () => {
-        clearTimeout(timer);
-        timer = setTimeout(() => cb.current(), 250);
-      });
-    }
-    channel.subscribe();
-    const onFocus = () => cb.current();
-    window.addEventListener("focus", onFocus);
+    const fire = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => cb.current(), 150);
+    };
+    const onLocal = (e: Event) => {
+      const t = (e as CustomEvent<{ table: string }>).detail?.table;
+      if (!t || watched.has(t)) fire();
+    };
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === DATA_CHANGED && e.newValue && watched.has(e.newValue.split(":")[0])) fire();
+    };
+    const onVisible = () => document.visibilityState === "visible" && fire();
+    window.addEventListener(DATA_CHANGED, onLocal);
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("focus", fire);
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
       clearTimeout(timer);
-      window.removeEventListener("focus", onFocus);
-      supabase.removeChannel(channel);
+      window.removeEventListener(DATA_CHANGED, onLocal);
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("focus", fire);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, [key]);
 }

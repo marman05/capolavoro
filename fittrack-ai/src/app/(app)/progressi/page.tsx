@@ -52,7 +52,7 @@ export default function ProgressPage() {
   }, [from, today]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- caricamento dati asincrono da Supabase
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- caricamento dati asincrono dal server
     reload();
   }, [reload]);
   useRealtime(["food_entries", "water_logs", "workouts", "weight_logs"], reload);

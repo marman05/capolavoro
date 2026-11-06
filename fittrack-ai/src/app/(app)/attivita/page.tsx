@@ -34,7 +34,7 @@ export default function ActivityPage() {
     }
   }, [from, today]);
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- caricamento dati asincrono da Supabase
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- caricamento dati asincrono dal server
     reload();
   }, [reload]);
   useRealtime(["workouts"], reload);

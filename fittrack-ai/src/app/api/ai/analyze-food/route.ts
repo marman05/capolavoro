@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
 import { NextResponse } from "next/server";
-import { getAuthUser } from "@/lib/supabase/server";
+import { getUserId } from "@/lib/server/session";
 import { rateLimit } from "@/lib/server/rate-limit";
 import type { FoodAnalysis } from "@/lib/types";
 
@@ -65,7 +65,7 @@ function getClient() {
 }
 
 export async function POST(req: Request) {
-  const { userId } = await getAuthUser();
+  const userId = await getUserId();
   if (!userId) return NextResponse.json({ error: "Non autenticato" }, { status: 401 });
 
   if (!process.env.ANTHROPIC_API_KEY) {
