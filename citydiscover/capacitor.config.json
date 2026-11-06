@@ -1,0 +1,12 @@
+{
+  "appId": "app.citydiscover",
+  "appName": "CityDiscover",
+  "webDir": "public",
+  "server": {
+    "url": "https://IL-TUO-DOMINIO",
+    "cleartext": false
+  },
+  "plugins": {
+    "SplashScreen": { "backgroundColor": "#0f766e" }
+  }
+}

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>CityDiscover</title>
+  <meta name="description" content="Scopri cosa vedere, cosa fare e quali eventi ci sono in ogni città del mondo. Mappa, voti reali, itinerari.">
+  <meta name="theme-color" content="#0f766e" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b1215" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="/css/styles.css">
+  <script>
+    // Applica il tema salvato prima del rendering, per evitare lampeggi.
+    try { const t = localStorage.getItem('cd.theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body>
+  <a class="skip" href="#app">Vai al contenuto</a>
+  <header class="topbar">
+    <a class="brand" href="#/" aria-label="CityDiscover, home">
+      <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><path fill="currentColor" d="M16 2a11 11 0 0 0-11 11c0 8.3 9.7 16.1 10.1 16.4a1.4 1.4 0 0 0 1.8 0C17.3 29.1 27 21.3 27 13A11 11 0 0 0 16 2Zm0 15.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z"/></svg>
+      <span>City<b>Discover</b></span>
+    </a>
+    <nav class="mainnav" aria-label="Principale">
+      <a href="#/" data-nav="home">Esplora</a>
+      <a href="#/nearby" data-nav="nearby">Vicino a me</a>
+      <a href="#/saved" data-nav="saved">Salvati</a>
+    </nav>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="Cambia tema" title="Tema chiaro/scuro">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg>
+      </button>
+      <a class="btn btn-ghost" id="accountBtn" href="#/account">Accedi</a>
+    </div>
+  </header>
+
+  <main id="app" tabindex="-1"></main>
+
+  <nav class="tabbar" aria-label="Navigazione rapida">
+    <a href="#/" data-nav="home"><span aria-hidden="true">🔎</span>Esplora</a>
+    <a href="#/nearby" data-nav="nearby"><span aria-hidden="true">📍</span>Vicino</a>
+    <a href="#/saved" data-nav="saved"><span aria-hidden="true">❤️</span>Salvati</a>
+    <a href="#/account" data-nav="account"><span aria-hidden="true">👤</span>Profilo</a>
+  </nav>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <dialog id="modal" class="modal"></dialog>
+
+  <footer class="footer">
+    <p>Dati: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors (ODbL) ·
+      Wikidata / Wikipedia / Wikimedia Commons (CC BY-SA) · Meteo <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> ·
+      Percorsi OSRM · Eventi Ticketmaster / PredictHQ (se configurati).</p>
+    <p>Orari, prezzi e disponibilità provengono da fonti esterne: verificali sempre sul sito ufficiale.</p>
+  </footer>
+
+  <script src="/vendor/leaflet/leaflet.js"></script>
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

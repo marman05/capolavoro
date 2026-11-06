@@ -1,0 +1,14 @@
+{
+  "name": "citydiscover",
+  "version": "1.0.0",
+  "description": "CityDiscover — guida intelligente a città, luoghi ed eventi in tutto il mondo (web app + PWA installabile)",
+  "private": true,
+  "license": "MIT",
+  "engines": { "node": ">=22.5" },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server/server.js",
+    "dev": "node --disable-warning=ExperimentalWarning --watch server/server.js",
+    "test": "node --disable-warning=ExperimentalWarning --test tests/*.test.js",
+    "demo:mock": "node --disable-warning=ExperimentalWarning tests/mock-server.js"
+  }
+}
